@@ -1,23 +1,102 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <style>
-            body {
-    background-color: black;
+<head>
+    <style>
+        #board {
+            width: 240px;
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 5px;
+        }
+        .tile {
+            font-size: 24px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: lightgray;
+        }
+        .empty { background: white; }
+    </style>
+</head>
+
+<body>
+    <div id="board"></div>
+    <button onclick="requestSolve()">Solve</button>
+    <button onclick="requestShuffle()">shuffle</button>
+
+<script>
+// ----- Draw board -----
+let board = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
+
+function draw() {
+    const b = document.getElementById("board");
+    b.innerHTML = "";
+    board.forEach(n => {
+        const div = document.createElement("div");
+        div.classList.add("tile");
+        if (n === 0) div.classList.add("empty");
+        div.textContent = n === 0 ? "" : n;
+        b.appendChild(div);
+    });
 }
-            marquee {
-    color: white;
+draw();
+
+// ----- Request solution from Python -----
+async function requestSolve() {
+    const res = await fetch("http://localhost:8000/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({board})
+    });
+    const data = await res.json();
+    animateSolution(data);
 }
-            </style>
 
-    </head>
+async function requestShuffle() {
+    const res = await fetch("http://localhost:8000/shuffle", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify("")
+    });
+    const data = await res.json();
+    let output = [];
+    for (row of data){
+        for (num of row){
+            output.push(num);
+        }
+    }
+    board = output;
+    draw();
+}
 
-    <body>
-        <marquee scrollamount="10px" behavior="scroll" direction="right"> I really like cats Yippeeeeee </marquee>
+// ----- Animate moves -----
+function animateSolution(moves) {
+    let i = 0;
+    const interval = setInterval(() => {
+        if (i >= moves.length) return clearInterval(interval);
+        move(moves[i]);
+        draw();
+        i++;
+    }, 50);
+}
 
-        <br>
-        <a href="https://google.com" target="_blank">
-            <img src="https://static.wikia.nocookie.net/silly-cat/images/3/35/CuhBG.png/revision/latest?cb=20231025181331" width="1000px" height="1000px" alt="The really silly cat is here!">
-        </a> 
-    </body>
+// ----- Apply move to board -----
+function move(dir) {
+    const idx = board.indexOf(0); // empty tile
+    const row = Math.floor(idx / 4);
+    const col = idx % 4;
+
+    if (dir === "U" && row < 3) swap(idx, idx + 4);
+    if (dir === "D" && row > 0) swap(idx, idx - 4);
+    if (dir === "L" && col < 3) swap(idx, idx + 1);
+    if (dir === "R" && col > 0) swap(idx, idx - 1);
+}
+
+function swap(a, b) {
+    [board[a], board[b]] = [board[b], board[a]];
+}
+</script>
+</body>
 </html>
