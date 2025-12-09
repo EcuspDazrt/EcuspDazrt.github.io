@@ -73,7 +73,7 @@ class GameBoard:
 
             if node.state == goal_state_hashable:
                 actions = []
-                self.display_board(node.state)
+                # self.display_board(node.state)
                 while node.parent is not None:
                     actions.append(node.action)
                     node = node.parent
