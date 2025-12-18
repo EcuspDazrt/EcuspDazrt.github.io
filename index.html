@@ -1,102 +1,581 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Portfolio</title>
     <style>
-        #board {
-            width: 240px;
-            display: grid;
-            grid-template-columns: repeat(4, 60px);
-            gap: 5px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .tile {
-            font-size: 24px;
-            width: 60px;
-            height: 60px;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        nav {
+            background: #111;
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #222;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            background: lightgray;
         }
-        .empty { background: white; }
+
+        nav .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #4a9eff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero {
+            padding: 8rem 0 6rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #4a9eff 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            color: #888;
+            margin-bottom: 2rem;
+        }
+
+        .hero .bio {
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            color: #b0b0b0;
+            line-height: 1.8;
+        }
+
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: #fff;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background: #151515;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 2rem;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: #4a9eff;
+        }
+
+        .project-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #4a9eff;
+        }
+
+        .project-card .description {
+            color: #b0b0b0;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-card .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-tag {
+            background: #222;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .project-card .placeholder {
+            background: #0a0a0a;
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+
+        .project-card .links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            background: #222;
+            color: #e0e0e0;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #333;
+        }
+
+        .btn-primary {
+            background: #4a9eff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #3a8eef;
+        }
+
+        .contact {
+            background: #111;
+            padding: 4rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .contact h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact p {
+            color: #888;
+            margin-bottom: 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .social-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #4a9eff;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+        }
     </style>
 </head>
-
 <body>
-    <div id="board"></div>
-    <button onclick="requestSolve()">Solve</button>
-    <button onclick="requestShuffle()">shuffle</button>
+    <nav>
+        <div class="container">
+            <div class="logo">Your Name</div>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
 
-<script>
-// ----- Draw board -----
-let board = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
+    <section id="home" class="hero">
+        <div class="container">
+            <h1>Your Name</h1>
+            <div class="subtitle">Software Developer | AI & Machine Learning Enthusiast</div>
+            <p class="bio">
+                Currently working in general software development with a passion for transitioning into 
+                AI and machine learning. Building innovative solutions and exploring the intersection 
+                of technology and intelligence.
+            </p>
+        </div>
+    </section>
 
-function draw() {
-    const b = document.getElementById("board");
-    b.innerHTML = "";
-    board.forEach(n => {
-        const div = document.createElement("div");
-        div.classList.add("tile");
-        if (n === 0) div.classList.add("empty");
-        div.textContent = n === 0 ? "" : n;
-        b.appendChild(div);
-    });
-}
-draw();
+    <section id="projects" class="section">
+        <div class="container">
+            <h2 class="section-title">Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <h3>15-Puzzle Solver</h3>
+                    <p class="description">
+                        An intelligent 15-puzzle solver using A* search algorithm. Features interactive gameplay 
+                        with shuffle functionality and automated solving with move visualization. The Python backend 
+                        efficiently computes optimal solutions.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">A* Algorithm</span>
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">Flask/FastAPI</span>
+                    </div>
+                    <div style="background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 2rem; margin-bottom: 1rem;">
+                        <div id="puzzle-board" style="width: 240px; display: grid; grid-template-columns: repeat(4, 60px); gap: 5px; margin: 0 auto 1rem;"></div>
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button onclick="requestSolve()" style="padding: 0.6rem 1.5rem; background: #4a9eff; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">Solve</button>
+                            <button onclick="requestShuffle()" style="padding: 0.6rem 1.5rem; background: #222; color: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">Shuffle</button>
+                        </div>
+                        <p id="puzzle-status" style="text-align: center; margin-top: 1rem; color: #888; font-size: 0.9rem;">Requires Python backend running on localhost:8000</p>
+                    </div>
+                    <div class="links">
+                        <a href="#" class="btn">GitHub + Setup Instructions</a>
+                    </div>
+                </div>
 
-// ----- Request solution from Python -----
-async function requestSolve() {
-    const res = await fetch("http://localhost:8000/solve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({board})
-    });
-    const data = await res.json();
-    animateSolution(data);
-}
+                <div class="project-card">
+                    <h3>Handwritten Digit Recognizer</h3>
+                    <p class="description">
+                        A handwritten digit recognition system built with a custom neural network trained on the MNIST dataset. 
+                        Users can draw digits on an interactive canvas, and the model predicts the number in real-time with 
+                        confidence scores. Demonstrates fundamental machine learning concepts including forward propagation, 
+                        backpropagation, and model training.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Neural Networks</span>
+                        <span class="tech-tag">NumPy</span>
+                        <span class="tech-tag">MNIST Dataset</span>
+                        <span class="tech-tag">Machine Learning</span>
+                    </div>
+                    <div style="background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 2rem; margin-bottom: 1rem;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                            <canvas id="digit-canvas" width="28" height="28" style="width: 280px; height: 280px; border: 2px solid #333; border-radius: 8px; background: black; cursor: crosshair; image-rendering: pixelated;"></canvas>
+                            <div style="display: flex; gap: 1rem;">
+                                <button onclick="clearDigitCanvas()" style="padding: 0.6rem 1.5rem; background: #222; color: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">Clear</button>
+                                <button onclick="predictDigit()" style="padding: 0.6rem 1.5rem; background: #4a9eff; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">Predict</button>
+                            </div>
+                            <div id="digit-result" style="text-align: center; color: #888; font-size: 0.9rem;">Draw a digit (0-9) and click Predict</div>
+                        </div>
+                    </div>
+                    <div class="links">
+                        <a href="#" class="btn">GitHub + Model Details</a>
+                    </div>
+                </div>
 
-async function requestShuffle() {
-    const res = await fetch("http://localhost:8000/shuffle", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify("")
-    });
-    const data = await res.json();
-    let output = [];
-    for (row of data){
-        for (num of row){
-            output.push(num);
+                <div class="project-card">
+                    <h3>Project Three</h3>
+                    <p class="description">
+                        Description of your third Python project. Explain the use case and any interesting 
+                        challenges you solved.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">TensorFlow</span>
+                        <span class="tech-tag">Flask</span>
+                    </div>
+                    <div class="placeholder">
+                        Embed your deployed app here<br>
+                        <small>(iframe or link to live demo)</small>
+                    </div>
+                    <div class="links">
+                        <a href="#" class="btn btn-primary">Live Demo</a>
+                        <a href="#" class="btn">GitHub</a>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <h3>Project Four</h3>
+                    <p class="description">
+                        Description of your fourth Python project. Share what you learned and the impact 
+                        it could have.
+                    </p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">PyTorch</span>
+                        <span class="tech-tag">Streamlit</span>
+                    </div>
+                    <div class="placeholder">
+                        Embed your deployed app here<br>
+                        <small>(iframe or link to live demo)</small>
+                    </div>
+                    <div class="links">
+                        <a href="#" class="btn btn-primary">Live Demo</a>
+                        <a href="#" class="btn">GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2>Let's Connect</h2>
+            <p>Interested in collaborating or have a question? Reach out!</p>
+            <a href="mailto:your.email@example.com" class="btn btn-primary">Get In Touch</a>
+            <div class="social-links">
+                <a href="#">GitHub</a>
+                <a href="#">LinkedIn</a>
+                <a href="#">Twitter</a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    // 15-Puzzle functionality
+    let puzzleBoard = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
+    
+    function drawPuzzle() {
+        const boardEl = document.getElementById("puzzle-board");
+        if (!boardEl) return;
+        boardEl.innerHTML = "";
+        puzzleBoard.forEach(n => {
+            const div = document.createElement("div");
+            div.style.cssText = "font-size: 24px; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; background: #222; border-radius: 4px; font-weight: 600;";
+            if (n === 0) {
+                div.style.background = "#0a0a0a";
+                div.style.border = "2px dashed #333";
+            }
+            div.textContent = n === 0 ? "" : n;
+            boardEl.appendChild(div);
+        });
+    }
+    
+    async function requestSolve() {
+        const statusEl = document.getElementById("puzzle-status");
+        statusEl.textContent = "Solving...";
+        statusEl.style.color = "#4a9eff";
+        
+        try {
+            const res = await fetch("http://localhost:8000/solve", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({board: puzzleBoard})
+            });
+            const data = await res.json();
+            animateSolution(data);
+            statusEl.textContent = `Solved in ${data.length} moves!`;
+            statusEl.style.color = "#4ade80";
+        } catch (err) {
+            statusEl.textContent = "Error: Make sure Python backend is running on localhost:8000";
+            statusEl.style.color = "#ef4444";
         }
     }
-    board = output;
-    draw();
-}
+    
+    async function requestShuffle() {
+        const statusEl = document.getElementById("puzzle-status");
+        statusEl.textContent = "Shuffling...";
+        statusEl.style.color = "#4a9eff";
+        
+        try {
+            const res = await fetch("http://localhost:8000/shuffle", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify("")
+            });
+            const data = await res.json();
+            let output = [];
+            for (let row of data) {
+                for (let num of row) {
+                    output.push(num);
+                }
+            }
+            puzzleBoard = output;
+            drawPuzzle();
+            statusEl.textContent = "Shuffled! Click Solve to watch the algorithm work.";
+            statusEl.style.color = "#888";
+        } catch (err) {
+            statusEl.textContent = "Error: Make sure Python backend is running on localhost:8000";
+            statusEl.style.color = "#ef4444";
+        }
+    }
+    
+    function animateSolution(moves) {
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i >= moves.length) return clearInterval(interval);
+            movePuzzle(moves[i]);
+            drawPuzzle();
+            i++;
+        }, 50);
+    }
+    
+    function movePuzzle(dir) {
+        const idx = puzzleBoard.indexOf(0);
+        const row = Math.floor(idx / 4);
+        const col = idx % 4;
+        if (dir === "U" && row < 3) swapPuzzle(idx, idx + 4);
+        if (dir === "D" && row > 0) swapPuzzle(idx, idx - 4);
+        if (dir === "L" && col < 3) swapPuzzle(idx, idx + 1);
+        if (dir === "R" && col > 0) swapPuzzle(idx, idx - 1);
+    }
+    
+    function swapPuzzle(a, b) {
+        [puzzleBoard[a], puzzleBoard[b]] = [puzzleBoard[b], puzzleBoard[a]];
+    }
+    
+    // Initialize puzzle
+    drawPuzzle();
 
-// ----- Animate moves -----
-function animateSolution(moves) {
-    let i = 0;
-    const interval = setInterval(() => {
-        if (i >= moves.length) return clearInterval(interval);
-        move(moves[i]);
-        draw();
-        i++;
-    }, 50);
-}
+    // Digit Canvas functionality
+    const canvas = document.getElementById('digit-canvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    let isDrawing = false;
 
-// ----- Apply move to board -----
-function move(dir) {
-    const idx = board.indexOf(0); // empty tile
-    const row = Math.floor(idx / 4);
-    const col = idx % 4;
+    if (canvas && ctx) {
+        // Set actual canvas size to 28x28 (MNIST size)
+        canvas.width = 28;
+        canvas.height = 28;
+        
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = 'white';
 
-    if (dir === "U" && row < 3) swap(idx, idx + 4);
-    if (dir === "D" && row > 0) swap(idx, idx - 4);
-    if (dir === "L" && col < 3) swap(idx, idx + 1);
-    if (dir === "R" && col > 0) swap(idx, idx - 1);
-}
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            ctx.beginPath();
+            ctx.moveTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
+        });
 
-function swap(a, b) {
-    [board[a], board[b]] = [board[b], board[a]];
-}
-</script>
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            ctx.lineTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
+            ctx.stroke();
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDrawing = false;
+        });
+
+        // Touch support for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            ctx.beginPath();
+            ctx.moveTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            ctx.lineTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
+            ctx.stroke();
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isDrawing = false;
+        });
+    }
+
+    function clearDigitCanvas() {
+        if (ctx && canvas) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('digit-result').textContent = 'Draw a digit (0-9) and click Predict';
+            document.getElementById('digit-result').style.color = '#888';
+        }
+    }
+
+    async function predictDigit() {
+        const resultEl = document.getElementById('digit-result');
+        resultEl.textContent = 'Predicting...';
+        resultEl.style.color = '#4a9eff';
+
+        // Get canvas image data
+        const imageData = canvas.toDataURL('image/png');
+
+        try {
+            const res = await fetch('http://localhost:8000/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            });
+            const data = await res.json();
+            
+            // Assuming backend returns {digit: number, confidence: float}
+            resultEl.textContent = `Prediction: ${data.digit} (${(data.confidence * 100).toFixed(1)}% confidence)`;
+            resultEl.style.color = '#4ade80';
+        } catch (err) {
+            resultEl.textContent = 'Error: Make sure Python backend is running on localhost:8000';
+            resultEl.style.color = '#ef4444';
+        }
+    }
+    </script>
 </body>
 </html>
