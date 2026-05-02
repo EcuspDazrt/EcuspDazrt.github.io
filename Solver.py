@@ -215,9 +215,10 @@ class PriorityQueue():
         return any(item_state == state for _, _, item_state,_ in self.heap)
 
 
-
-# board = GameBoard()
-# board.solve()
-# board.display_board()
-# print(board.solution)
-# print(len(board.solution))
+def solve(payload: dict):
+    gameboard = GameBoard()
+    board = payload["board"]
+    board_state = [[board[i+j*4]for i in range(4)] for j in range(4)]
+    gameboard.board = board_state
+    moves = gameboard.solve()
+    return moves

@@ -1,581 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecusp Dazrt - Portfolio</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ecusp Dazrt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+  <script src="script.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js"></script>
+  <script>
+      let pyodide;
+      window.disableDigitRec = false;
+      window.disableSolver = false;
+      
+  async function initPyodide() {
+    pyodide = await loadPyodide();
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
+    await pyodide.loadPackage("micropip");
+    const micropip = pyodide.pyimport("micropip");
+    await micropip.install("numpy");
+    await micropip.install("pillow");
 
-        nav {
-            background: #111;
-            padding: 1.5rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #222;
-        }
+    try {
+      const response = await fetch("/network.npz");
+      const buffer = await response.arrayBuffer();
+      pyodide.FS.writeFile("/network.npz", new Uint8Array(buffer));
 
-        nav .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+      const digitRecCode = await fetch("/digit_rec.py").then(r => r.text());
+      await pyodide.runPythonAsync(digitRecCode)
+    } catch {
+      window.disableDigitRec = true
+      window.dispatchEvent(new Event('disableDigitRecChanged'));
+    }
 
-        nav .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-        }
+    try {
+      const solverCode = await fetch("/solver.py").then(r => r.text());
+      await pyodide.runPythonAsync(solverCode);
+      console.log('a')
+    } catch {
+      window.disableSolver = true;
+      window.dispatchEvent(new Event('disableSolverChanged'));
+    }
+  }
 
-        nav ul {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
+  initPyodide();
 
-        nav a {
-            color: #e0e0e0;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        nav a:hover {
-            color: #4a9eff;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .hero {
-            padding: 8rem 0 6rem;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #4a9eff 0%, #a78bfa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero .subtitle {
-            font-size: 1.3rem;
-            color: #888;
-            margin-bottom: 2rem;
-        }
-
-        .hero .bio {
-            max-width: 700px;
-            margin: 0 auto;
-            font-size: 1.1rem;
-            color: #b0b0b0;
-            line-height: 1.8;
-        }
-
-        .section {
-            padding: 4rem 0;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            text-align: center;
-            color: #fff;
-        }
-
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .project-card {
-            background: #151515;
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 2rem;
-            transition: transform 0.3s, border-color 0.3s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-            border-color: #4a9eff;
-        }
-
-        .project-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #4a9eff;
-        }
-
-        .project-card .description {
-            color: #b0b0b0;
-            margin-bottom: 1.5rem;
-        }
-
-        .project-card .tech-stack {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .tech-tag {
-            background: #222;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        .project-card .placeholder {
-            background: #0a0a0a;
-            border: 2px dashed #333;
-            border-radius: 8px;
-            padding: 3rem;
-            text-align: center;
-            color: #555;
-            margin-bottom: 1rem;
-        }
-
-        .project-card .links {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 0.6rem 1.5rem;
-            background: #222;
-            color: #e0e0e0;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background 0.3s;
-        }
-
-        .btn:hover {
-            background: #333;
-        }
-
-        .btn-primary {
-            background: #4a9eff;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #3a8eef;
-        }
-
-        .contact {
-            background: #111;
-            padding: 4rem 0;
-            text-align: center;
-            margin-top: 4rem;
-        }
-
-        .contact h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .contact p {
-            color: #888;
-            margin-bottom: 2rem;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1.5rem;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .social-links a {
-            color: #e0e0e0;
-            text-decoration: none;
-            font-size: 1.1rem;
-            transition: color 0.3s;
-        }
-
-        .social-links a:hover {
-            color: #4a9eff;
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            nav ul {
-                gap: 1rem;
-            }
-        }
-    </style>
+  </script>
 </head>
 <body>
-    <nav>
-        <div class="container">
-            <div class="logo">Ecusp Dazrt</div>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
 
-    <section id="home" class="hero">
-        <div class="container">
-            <h1>Ecusp Dazrt</h1>
-            <div class="subtitle">Software Developer | AI & Machine Learning Enthusiast</div>
-            <p class="bio">
-                Currently working in general software development with a passion for transitioning into 
-                AI and machine learning. Building innovative solutions and exploring the intersection 
-                of technology and intelligence.
+<!-- ═══════════════════════════════════════════════════════════
+     LEFT RAIL  (from index_1_)
+═══════════════════════════════════════════════════════════ -->
+<nav class="rail" aria-label="Section navigation">
+  <div class="rail-logo">LM</div>
+  <div class="rail-nav">
+    <a href="#hero"    class="rail-item active" data-target="hero"    title="Home">00</a>
+    <a href="#about"   class="rail-item"         data-target="about"   title="About">01</a>
+    <a href="#work"    class="rail-item"         data-target="work"    title="Work">02</a>
+    <a href="#contact" class="rail-item"         data-target="contact" title="Contact">03</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- ─── HERO — OSCILLOSCOPE  (from index_1_) ─────────────── -->
+  <section id="hero" class="hero">
+    <canvas id="osc-canvas" aria-hidden="true"></canvas>
+    <div class="hero-vignette"></div>
+    <div class="osc-tag">signal&nbsp;/&nbsp;capture</div>
+
+    <div class="hero-id">
+      <div class="hero-eyebrow">Software Developer</div>
+      <div class="hero-name">London McAuley</div>
+      <div class="hero-desc">
+        Building towards a specialization in machine learning<span class="cursor-blink" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <div class="hero-scroll" aria-hidden="true">scroll</div>
+  </section>
+
+  <!-- ─── ABOUT  (index_2_ two-column layout, index_1_ tokens) -->
+  <section id="about" class="section">
+    <div class="section-inner">
+      <div class="section-head reveal">
+        <span class="s-num">01</span>
+        <span class="s-title">About</span>
+      </div>
+
+      <div class="about-grid reveal">
+        <div class="about-body">
+          <p>
+            I'm a software developer with a deep focus on <strong>artificial intelligence and machine learning</strong>, particularly in building systems that find structure in complex, real-world data.
+          </p>
+        </div>
+
+        <div class="about-sidebar">
+          <div class="sidebar-block">
+            <p class="sidebar-label">Languages</p>
+            <p class="sidebar-value">Python / JavaScript / SQL</p>
+          </div>
+          <div class="sidebar-block">
+            <p class="sidebar-label">ML / AI</p>
+            <p class="sidebar-value">scikit-learn / PyTorch<br>NumPy / pandas</p>
+          </div>
+          <div class="sidebar-block">
+            <p class="sidebar-label">Infrastructure</p>
+            <p class="sidebar-value">FastAPI / SQLite<br>Railway / LibPcap</p>
+          </div>
+          <div class="sidebar-block">
+            <p class="sidebar-label">Current Work</p>
+            <p class="sidebar-value">NIDS Research —<br>Drift Defense &amp;<br>Domain Adaptation</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── WORK  (index_2_ article layout, index_1_ demo panels) -->
+  <section id="work" class="section">
+    <div class="section-inner">
+      <div class="section-head reveal">
+        <span class="s-num">02</span>
+        <span class="s-title">Projects</span>
+      </div>
+
+      <div class="projects-list">
+
+        <!-- ── P.01 — NIDS  (Featured) ──────────────────────── -->
+        <article class="project-article" id="project-nids">
+          <div class="project-top">
+            <span class="proj-index">[1]</span>
+            <div class="badge-row">
+              <span class="badge badge-research">Python</span>
+              <span class="badge badge-research">ML/AI</span>
+              <span class="badge badge-research">SQLite</span>
+              <span class="badge badge-research">LibPcap</span>
+              <span class="badge badge-research">MultiProcessing</span>
+            </div>
+          </div>
+
+          <h2 class="project-name">Network Intrusion<br>Detection System</h2>
+
+          <p class="project-desc">
+            A real-time network intrusion detection system built end-to-end. LibPcap sniffs raw traffic from the
+            network interface; a flow aggregator groups packets into bidirectional streams and computes
+            behavioral features such as inter-arrival times, packet size distributions, byte ratios,
+            characterizing how traffic flows while avoiding inspecting payloads. A supervised
+            Random Forest classifier and an unsupervised Autoencoder anomaly detector evaluates each
+            completed flow, with flagged events logged to SQLite and surfaced on a live customtkinter dashboard.
+          </p>
+
+          <div class="research-block">
+            <p class="research-block-label">// Active Research</p>
+            <p>
+              Research is currently in progress investigating the system's ability to implement <strong>domain adaptation</strong>, a process in which
+              the unsupervised model tunes its parameters to adjust to local traffic, and defenses to prevent this process
+              from being poisoned. Details are commited to the repo.
             </p>
-        </div>
-    </section>
+          </div>
 
-    <section id="projects" class="section">
-        <div class="container">
-            <h2 class="section-title">Projects</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <h3>15-Puzzle Solver</h3>
-                    <p class="description">
-                        An intelligent 15-puzzle solver using A* search algorithm. Features interactive gameplay 
-                        with shuffle functionality and automated solving with move visualization. The Python backend 
-                        efficiently computes optimal solutions.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">A* Algorithm</span>
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">Flask/FastAPI</span>
-                    </div>
-                    <div style="background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 2rem; margin-bottom: 1rem;">
-                        <div id="puzzle-board" style="width: 240px; display: grid; grid-template-columns: repeat(4, 60px); gap: 5px; margin: 0 auto 1rem;"></div>
-                        <div style="display: flex; gap: 1rem; justify-content: center;">
-                            <button onclick="requestSolve()" style="padding: 0.6rem 1.5rem; background: #4a9eff; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">Solve</button>
-                            <button onclick="requestShuffle()" style="padding: 0.6rem 1.5rem; background: #222; color: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">Shuffle</button>
-                        </div>
-                        <p id="puzzle-status" style="text-align: center; margin-top: 1rem; color: #888; font-size: 0.9rem;">Requires Python backend running on localhost:8000</p>
-                    </div>
-                    <div class="links">
-                        <a href="#" class="btn">GitHub + Setup Instructions</a>
-                    </div>
-                </div>
-
-                <div class="project-card">
-                    <h3>Handwritten Digit Recognizer</h3>
-                    <p class="description">
-                        A handwritten digit recognition system built with a custom neural network trained on the MNIST dataset. 
-                        Users can draw digits on an interactive canvas, and the model predicts the number in real-time with 
-                        confidence scores. Demonstrates fundamental machine learning concepts including forward propagation, 
-                        backpropagation, and model training.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">Neural Networks</span>
-                        <span class="tech-tag">NumPy</span>
-                        <span class="tech-tag">MNIST Dataset</span>
-                        <span class="tech-tag">Machine Learning</span>
-                    </div>
-                    <div style="background: #0a0a0a; border: 1px solid #333; border-radius: 8px; padding: 2rem; margin-bottom: 1rem;">
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                            <canvas id="digit-canvas" width="28" height="28" style="width: 280px; height: 280px; border: 2px solid #333; border-radius: 8px; background: black; cursor: crosshair; image-rendering: pixelated;"></canvas>
-                            <div style="display: flex; gap: 1rem;">
-                                <button onclick="clearDigitCanvas()" style="padding: 0.6rem 1.5rem; background: #222; color: #e0e0e0; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">Clear</button>
-                                <button onclick="predictDigit()" style="padding: 0.6rem 1.5rem; background: #4a9eff; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">Predict</button>
-                            </div>
-                            <div id="digit-result" style="text-align: center; color: #888; font-size: 0.9rem;">Draw a digit (0-9) and click Predict</div>
-                        </div>
-                    </div>
-                    <div class="links">
-                        <a href="#" class="btn">GitHub + Model Details</a>
-                    </div>
-                </div>
-
-                <div class="project-card">
-                    <h3>Project Three</h3>
-                    <p class="description">
-                        Description of your third Python project. Explain the use case and any interesting 
-                        challenges you solved.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">TensorFlow</span>
-                        <span class="tech-tag">Flask</span>
-                    </div>
-                    <div class="placeholder">
-                        Embed your deployed app here<br>
-                        <small>(iframe or link to live demo)</small>
-                    </div>
-                    <div class="links">
-                        <a href="#" class="btn btn-primary">Live Demo</a>
-                        <a href="#" class="btn">GitHub</a>
-                    </div>
-                </div>
-
-                <div class="project-card">
-                    <h3>Project Four</h3>
-                    <p class="description">
-                        Description of your fourth Python project. Share what you learned and the impact 
-                        it could have.
-                    </p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">PyTorch</span>
-                        <span class="tech-tag">Streamlit</span>
-                    </div>
-                    <div class="placeholder">
-                        Embed your deployed app here<br>
-                        <small>(iframe or link to live demo)</small>
-                    </div>
-                    <div class="links">
-                        <a href="#" class="btn btn-primary">Live Demo</a>
-                        <a href="#" class="btn">GitHub</a>
-                    </div>
-                </div>
+          <div class="project-foot">
+            <div class="proj-links">
+              <!-- TODO: Replace '#' with your NIDS GitHub repository URL -->
+              <a href="https://github.com/EcuspDazrt/NIDS" class="proj-link">GitHub →</a>
             </div>
-        </div>
-    </section>
+          </div>
+        </article>
 
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2>Let's Connect</h2>
-            <p>Interested in collaborating or have a question? Reach out!</p>
-            <a href="mailto:your.email@example.com" class="btn btn-primary">Get In Touch</a>
-            <div class="social-links">
-                <a href="#">GitHub</a>
-                <a href="#">LinkedIn</a>
-                <a href="#">Twitter</a>
+        <!-- ── P.02 — Ingredient Checker ───────────────────── -->
+        <article class="project-article" id="project-ingredient">
+          <div class="project-top">
+            <span class="proj-index">[2]</span>
+            <div class="badge-row">
+              <span class="badge badge-research">Python</span>
+              <span class="badge badge-research">FastAPI</span>
+              <span class="badge badge-research">RapidFuzz</span>
+              <span class="badge badge-research">Railway</span>
+              <span class="badge badge-research">Embedding</span>
             </div>
+          </div>
+
+          <h2 class="project-name">Ingredient Checker Widget</h2>
+
+          <p class="project-desc">
+            A widget built for professional medspas to embed directly on their websites. Backed by a
+            deployed API on Railway that handles ingredient lookups with fuzzy matching,
+            returns a detailed description as well as comedogenicity and irritancy ratings for each
+            ingredient. Designed to be embeddable with a single script tag. Currently expanding the scope
+            to include product look-up.
+          </p>
+
+          <!--
+            TODO: When the widget is embeddable, replace this block with the live embed code.
+          -->
+          <div class="widget-placeholder">
+            <p class="wph-label">// Widget Placeholder</p>
+            <p class="wph-note">
+              Embeddable ingredient checker widget will load here.<br>
+              Connects to deployed Railway API with fuzzy matching.
+            </p>
+          </div>
+
+          <div class="project-foot" style="margin-top: 32px;">
+            <div class="proj-links">
+              <!-- TODO: Replace '#' with the deployed API URL -->
+              <a href="#" class="proj-link">Live API →</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- ── P.03 — 15-Puzzle Solver ──────────────────────── -->
+        <article class="project-article" id="project-puzzle">
+          <div class="project-top">
+            <span class="proj-index">[3]</span>
+            <div class="badge-row">
+              <span class="badge badge-research">Python</span>
+              <span class="badge badge-research">Pyodide</span>
+              <span class="badge badge-research">A* Search</span>
+              <span class="badge badge-research">Javascript</span>
+            </div>
+          </div>
+
+          <h2 class="project-name">15-Puzzle Solver</h2>
+
+
+          <p class="project-desc">
+            An A* search implementation with Manhattan distance heuristic that computes optimal move
+            sequences for any valid 15-puzzle state. Solvability is verified before any board is
+            presented. The Python backend is embeded onto the site using pyodide. The frontend animates the
+            solution move-by-move. Demonstrates exploration into informed search, priority queues,
+            and algorithm design fundamentals.
+          </p>
+
+          <div class="project-foot" style="margin-bottom: 0;">
+            <div class="proj-links">
+              <!-- TODO: Replace '#' with your 15-puzzle GitHub repository URL -->
+              <a href="#" class="proj-link">GitHub →</a>
+            </div>
+          </div>
+
+          <div class="demo-panel">
+            <div id="puzzle-board" role="grid" aria-label="15 puzzle board"></div>
+            <div class="demo-controls">
+              <button class="d-btn primary" onclick="requestSolve()">Solve</button>
+              <button class="d-btn"         onclick="requestShuffle()">Shuffle</button>
+            </div>
+            <div id="puzzle-status" class="d-status"> </div>
+          </div>
+        </article>
+
+        <!-- ── P.04 — Digit Recognizer ──────────────────────── -->
+        <article class="project-article" id="project-digit">
+          <div class="project-top">
+            <span class="proj-index">[4]</span>
+                        <div class="badge-row">
+              <span class="badge badge-research">Neural Networks</span>
+              <span class="badge badge-research">MNIST</span>
+              <span class="badge badge-research">NumPy</span>
+            </div>
+          </div>
+
+          <h2 class="project-name">Handwritten Digit Recognizer</h2>
+
+          <p class="project-desc">
+            Digit classification built from scratch; forward propagation and backpropagation
+            implemented without ML frameworks, trained on MNIST. Draw any digit on the canvas
+            and the model returns a prediction with a confidence score. Demonstrates concrete
+            understanding of the underlying mathematics of how neural networks actually function.
+          </p>
+
+          <div class="project-foot" style="margin-bottom: 0;">
+            <div class="proj-links">
+              <!-- TODO: Replace '#' with your digit recognizer GitHub repository URL -->
+              <a href="https://github.com/EcuspDazrt/Digit-Recognizer" class="proj-link">GitHub →</a>
+            </div>
+          </div>
+
+          <div class="demo-panel">
+            <canvas id="digit-canvas" width="28" height="28"
+              aria-label="Draw a digit here"></canvas>
+            <div class="demo-controls">
+              <button class="d-btn primary" onclick="predictDigit()">Predict</button>
+              <button class="d-btn"         onclick="clearDigit()">Clear</button>
+            </div>
+            <div id="digit-result" class="d-status">Draw a digit, then predict</div>
+          </div>
+        </article>
+
+      </div><!-- /.projects-list -->
+    </div><!-- /.section-inner -->
+  </section>
+
+  <!-- ─── CONTACT  (from index_1_) ───────────────────────────── -->
+  <section id="contact" class="section">
+    <div class="section-inner">
+      <div class="section-head reveal">
+        <span class="s-num">03</span>
+        <span class="s-title">Contact</span>
+      </div>
+
+      <div class="contact-rows reveal-stagger">
+        <!-- TODO: Replace with your actual email address -->
+        <!-- <div class="c-row">
+          <span class="c-label">Email</span>
+          <a href="mailto:your@email.com" class="c-val">your@email.com</a>
+        </div> -->
+
+        <!-- TODO: Replace with your actual GitHub profile URL -->
+        <div class="c-row">
+          <span class="c-label">GitHub</span>
+          <a href="https://github.com/EcuspDazrt" target="_blank" rel="noopener" class="c-val">
+            github.com/EcuspDazrt
+          </a>
         </div>
-    </section>
 
-    <script>
-    // 15-Puzzle functionality
-    let puzzleBoard = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
-    
-    function drawPuzzle() {
-        const boardEl = document.getElementById("puzzle-board");
-        if (!boardEl) return;
-        boardEl.innerHTML = "";
-        puzzleBoard.forEach(n => {
-            const div = document.createElement("div");
-            div.style.cssText = "font-size: 24px; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; background: #222; border-radius: 4px; font-weight: 600;";
-            if (n === 0) {
-                div.style.background = "#0a0a0a";
-                div.style.border = "2px dashed #333";
-            }
-            div.textContent = n === 0 ? "" : n;
-            boardEl.appendChild(div);
-        });
-    }
-    
-    async function requestSolve() {
-        const statusEl = document.getElementById("puzzle-status");
-        statusEl.textContent = "Solving...";
-        statusEl.style.color = "#4a9eff";
-        
-        try {
-            const res = await fetch("http://localhost:8000/solve", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({board: puzzleBoard})
-            });
-            const data = await res.json();
-            animateSolution(data);
-            statusEl.textContent = `Solved in ${data.length} moves!`;
-            statusEl.style.color = "#4ade80";
-        } catch (err) {
-            statusEl.textContent = "Error: Make sure Python backend is running on localhost:8000";
-            statusEl.style.color = "#ef4444";
-        }
-    }
-    
-    async function requestShuffle() {
-        const statusEl = document.getElementById("puzzle-status");
-        statusEl.textContent = "Shuffling...";
-        statusEl.style.color = "#4a9eff";
-        
-        try {
-            const res = await fetch("http://localhost:8000/shuffle", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify("")
-            });
-            const data = await res.json();
-            let output = [];
-            for (let row of data) {
-                for (let num of row) {
-                    output.push(num);
-                }
-            }
-            puzzleBoard = output;
-            drawPuzzle();
-            statusEl.textContent = "Shuffled! Click Solve to watch the algorithm work.";
-            statusEl.style.color = "#888";
-        } catch (err) {
-            statusEl.textContent = "Error: Make sure Python backend is running on localhost:8000";
-            statusEl.style.color = "#ef4444";
-        }
-    }
-    
-    function animateSolution(moves) {
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i >= moves.length) return clearInterval(interval);
-            movePuzzle(moves[i]);
-            drawPuzzle();
-            i++;
-        }, 50);
-    }
-    
-    function movePuzzle(dir) {
-        const idx = puzzleBoard.indexOf(0);
-        const row = Math.floor(idx / 4);
-        const col = idx % 4;
-        if (dir === "U" && row < 3) swapPuzzle(idx, idx + 4);
-        if (dir === "D" && row > 0) swapPuzzle(idx, idx - 4);
-        if (dir === "L" && col < 3) swapPuzzle(idx, idx + 1);
-        if (dir === "R" && col > 0) swapPuzzle(idx, idx - 1);
-    }
-    
-    function swapPuzzle(a, b) {
-        [puzzleBoard[a], puzzleBoard[b]] = [puzzleBoard[b], puzzleBoard[a]];
-    }
-    
-    // Initialize puzzle
-    drawPuzzle();
+        <div class="c-row">
+          <span class="c-label">CodeWars</span>
+          <a href="https://www.codewars.com/users/EcuspDazrt" target="_blank" rel="noopener" class="c-val">
+            codewars.com/EcuspDazrt
+          </a>
+        </div>
 
-    // Digit Canvas functionality
-    const canvas = document.getElementById('digit-canvas');
-    const ctx = canvas ? canvas.getContext('2d') : null;
-    let isDrawing = false;
+        <!-- TODO: Replace '#' and handle with your actual LinkedIn URL -->
+        <div class="c-row">
+          <span class="c-label">LinkedIn</span>
+          <a href="https://www.linkedin.com/in/london-mcauley-a977043a7/" target="_blank" rel="noopener" class="c-val">
+            linkedin.com/LondonMcauley
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    if (canvas && ctx) {
-        // Set actual canvas size to 28x28 (MNIST size)
-        canvas.width = 28;
-        canvas.height = 28;
-        
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = 'white';
+</main>
 
-        canvas.addEventListener('mousedown', (e) => {
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            ctx.beginPath();
-            ctx.moveTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            ctx.lineTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
-            ctx.stroke();
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-        });
-
-        canvas.addEventListener('mouseleave', () => {
-            isDrawing = false;
-        });
-
-        // Touch support for mobile
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            ctx.beginPath();
-            ctx.moveTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
-        });
-
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0];
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            ctx.lineTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
-            ctx.stroke();
-        });
-
-        canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            isDrawing = false;
-        });
-    }
-
-    function clearDigitCanvas() {
-        if (ctx && canvas) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('digit-result').textContent = 'Draw a digit (0-9) and click Predict';
-            document.getElementById('digit-result').style.color = '#888';
-        }
-    }
-
-    async function predictDigit() {
-        const resultEl = document.getElementById('digit-result');
-        resultEl.textContent = 'Predicting...';
-        resultEl.style.color = '#4a9eff';
-
-        // Get canvas image data
-        const imageData = canvas.toDataURL('image/png');
-
-        try {
-            const res = await fetch('http://localhost:8000/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: imageData })
-            });
-            const data = await res.json();
-            
-            // Assuming backend returns {digit: number, confidence: float}
-            resultEl.textContent = `Prediction: ${data.digit} (${(data.confidence * 100).toFixed(1)}% confidence)`;
-            resultEl.style.color = '#4ade80';
-        } catch (err) {
-            resultEl.textContent = 'Error: Make sure Python backend is running on localhost:8000';
-            resultEl.style.color = '#ef4444';
-        }
-    }
-    </script>
+<footer class="footer">
+  <span class="footer-text" id="footer-year">Ecusp Dazrt</span>
+  <span class="footer-text">Built by hand.</span>
+</footer>
 </body>
 </html>
