@@ -38,7 +38,6 @@
     try {
       const solverCode = await fetch("/solver.py").then(r => r.text());
       await pyodide.runPythonAsync(solverCode);
-      console.log('a')
     } catch {
       window.disableSolver = true;
       window.dispatchEvent(new Event('disableSolverChanged'));
