@@ -206,8 +206,9 @@ async function requestShuffle() {
       puzzleBoard = currBoard.toJs().flat();
       drawPuzzle();
       setPuzzleStatus('Shuffled — click Solve', '');
-    } catch {
+    } catch(err) {
       setPuzzleStatus('Error: was not able to generate board', 'err');
+      console.log(err)
     }
 }
 
