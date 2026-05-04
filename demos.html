@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ecusp Dazrt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+  <script src="script.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js"></script>
+  <script>
+      let pyodide;
+      window.disableDigitRec = false;
+      window.disableSolver = false;
+      
+  async function initPyodide() {
+    pyodide = await loadPyodide();
+
+    await pyodide.loadPackage("micropip");
+    const micropip = pyodide.pyimport("micropip");
+    await micropip.install("numpy");
+    await micropip.install("pillow");
+
+    try {
+      const response = await fetch("/network.npz");
+      const buffer = await response.arrayBuffer();
+      pyodide.FS.writeFile("/network.npz", new Uint8Array(buffer));
+
+      const digitRecCode = await fetch("/digit_rec.py").then(r => r.text());
+      await pyodide.runPythonAsync(digitRecCode)
+    } catch {
+      window.disableDigitRec = true
+      window.dispatchEvent(new Event('disableDigitRecChanged'));
+    }
+
+    try {
+      const solverCode = await fetch("/solver.py").then(r => r.text());
+      await pyodide.runPythonAsync(solverCode);
+    } catch {
+      window.disableSolver = true;
+      window.dispatchEvent(new Event('disableSolverChanged'));
+    }
+  }
+
+  initPyodide();
+
+  </script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LEFT RAIL  (from index_1_)
+═══════════════════════════════════════════════════════════ -->
+<nav class="rail" aria-label="Section navigation">
+  <div class="rail-logo">LM</div>
+  <div class="rail-nav">
+    <a href="#hero"    class="rail-item active" data-target="hero"    title="Home">00</a>
+    <a href="#work"    class="rail-item"         data-target="work"    title="Work">01</a>
+    <a href="#contact" class="rail-item"         data-target="contact" title="Contact">02</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- ─── HERO — OSCILLOSCOPE  (from index_1_) ─────────────── -->
+  <section id="hero" class="hero">
+    <canvas id="osc-canvas" aria-hidden="true"></canvas>
+    <div class="hero-vignette"></div>
+    <div class="osc-tag">signal&nbsp;/&nbsp;capture</div>
+
+    <div class="hero-id">
+      <div class="hero-eyebrow">Software Developer</div>
+      <div class="hero-name">London McAuley</div>
+      <div class="hero-desc">
+        Building towards a specialization in machine learning<span class="cursor-blink" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <div class="hero-scroll" aria-hidden="true">scroll</div>
+  </section>
+
+  <!-- ─── WORK  (index_2_ article layout, index_1_ demo panels) -->
+  <section id="work" class="section">
+    <div class="section-inner">
+      <div class="section-head reveal">
+        <span class="s-num">01</span>
+        <span class="s-title">Demos</span>
+      </div>
+
+      <div class="projects-list">
+
+        <!-- ── P.03 — 15-Puzzle Solver ──────────────────────── -->
+        <article class="project-article" id="project-puzzle">
+          <div class="project-top">
+            <span class="proj-index"> </span>
+            <div class="badge-row">
+              <span class="badge badge-research">Python</span>
+              <span class="badge badge-research">Pyodide</span>
+              <span class="badge badge-research">A* Search</span>
+              <span class="badge badge-research">Javascript</span>
+            </div>
+          </div>
+
+          <h2 class="project-name">15-Puzzle Solver</h2>
+
+
+          <p class="project-desc">
+            An A* search implementation with Manhattan distance heuristic that computes optimal move
+            sequences for any valid 15-puzzle state. Solvability is verified before any board is
+            presented. The Python backend is embeded onto the site using pyodide. The frontend animates the
+            solution move-by-move. Demonstrates exploration into informed search, priority queues,
+            and algorithm design fundamentals.
+          </p>
+
+          <div class="project-foot" style="margin-bottom: 0;">
+            <div class="proj-links">
+              <!-- TODO: Replace '#' with your 15-puzzle GitHub repository URL -->
+              <a href="#" class="proj-link">GitHub →</a>
+            </div>
+          </div>
+
+          <div class="demo-panel">
+            <div id="puzzle-board" role="grid" aria-label="15 puzzle board"></div>
+            <div class="demo-controls">
+              <button class="d-btn primary" onclick="requestSolve()">Solve</button>
+              <button class="d-btn"         onclick="requestShuffle()">Shuffle</button>
+            </div>
+            <div id="puzzle-status" class="d-status"> </div>
+          </div>
+        </article>
+
+        <!-- ── P.04 — Digit Recognizer ──────────────────────── -->
+        <article class="project-article" id="project-digit">
+          <div class="project-top">
+            <span class="proj-index"> </span> 
+              <div class="badge-row">
+              <span class="badge badge-research">Neural Networks</span>
+              <span class="badge badge-research">MNIST</span>
+              <span class="badge badge-research">NumPy</span>
+            </div>
+          </div>
+
+          <h2 class="project-name">Handwritten Digit Recognizer</h2>
+
+          <p class="project-desc">
+            Digit classification built from scratch; forward propagation and backpropagation
+            implemented without ML frameworks, trained on MNIST. Draw any digit on the canvas
+            and the model returns a prediction with a confidence score. Demonstrates concrete
+            understanding of the underlying mathematics of how neural networks actually function.
+          </p>
+
+          <div class="project-foot" style="margin-bottom: 0;">
+            <div class="proj-links">
+              <!-- TODO: Replace '#' with your digit recognizer GitHub repository URL -->
+              <a href="https://github.com/EcuspDazrt/Digit-Recognizer" class="proj-link">GitHub →</a>
+            </div>
+          </div>
+
+          <div class="demo-panel">
+            <canvas id="digit-canvas" width="28" height="28"
+              aria-label="Draw a digit here"></canvas>
+            <div class="demo-controls">
+              <button class="d-btn primary" onclick="predictDigit()">Predict</button>
+              <button class="d-btn"         onclick="clearDigit()">Clear</button>
+            </div>
+            <div id="digit-result" class="d-status">Draw a digit, then predict</div>
+          </div>
+        </article>
+
+      </div><!-- /.projects-list -->
+    </div><!-- /.section-inner -->
+  </section>
+
+  <!-- ─── CONTACT  (from index_1_) ───────────────────────────── -->
+  <section id="contact" class="section">
+    <div class="section-inner">
+      <div class="section-head reveal">
+        <span class="s-num">02</span>
+        <span class="s-title">Contact</span>
+      </div>
+
+      <div class="contact-rows reveal-stagger">
+        <!-- TODO: Replace with your actual email address -->
+        <!-- <div class="c-row">
+          <span class="c-label">Email</span>
+          <a href="mailto:your@email.com" class="c-val">your@email.com</a>
+        </div> -->
+
+        <!-- TODO: Replace with your actual GitHub profile URL -->
+        <div class="c-row">
+          <span class="c-label">GitHub</span>
+          <a href="https://github.com/EcuspDazrt" target="_blank" rel="noopener" class="c-val">
+            github.com/EcuspDazrt
+          </a>
+        </div>
+
+        <div class="c-row">
+          <span class="c-label">CodeWars</span>
+          <a href="https://www.codewars.com/users/EcuspDazrt" target="_blank" rel="noopener" class="c-val">
+            codewars.com/EcuspDazrt
+          </a>
+        </div>
+
+        <!-- TODO: Replace '#' and handle with your actual LinkedIn URL -->
+        <div class="c-row">
+          <span class="c-label">LinkedIn</span>
+          <a href="https://www.linkedin.com/in/london-mcauley-a977043a7/" target="_blank" rel="noopener" class="c-val">
+            linkedin.com/LondonMcauley
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span class="footer-text" id="footer-year">Ecusp Dazrt</span>
+  <span class="footer-text">Built by hand.</span>
+</footer>
+</body>
+</html>

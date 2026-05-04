@@ -9,44 +9,6 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
   <script src="script.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js"></script>
-  <script>
-      let pyodide;
-      window.disableDigitRec = false;
-      window.disableSolver = false;
-      
-  async function initPyodide() {
-    pyodide = await loadPyodide();
-
-    await pyodide.loadPackage("micropip");
-    const micropip = pyodide.pyimport("micropip");
-    await micropip.install("numpy");
-    await micropip.install("pillow");
-
-    try {
-      const response = await fetch("/network.npz");
-      const buffer = await response.arrayBuffer();
-      pyodide.FS.writeFile("/network.npz", new Uint8Array(buffer));
-
-      const digitRecCode = await fetch("/digit_rec.py").then(r => r.text());
-      await pyodide.runPythonAsync(digitRecCode)
-    } catch {
-      window.disableDigitRec = true
-      window.dispatchEvent(new Event('disableDigitRecChanged'));
-    }
-
-    try {
-      const solverCode = await fetch("/solver.py").then(r => r.text());
-      await pyodide.runPythonAsync(solverCode);
-    } catch {
-      window.disableSolver = true;
-      window.dispatchEvent(new Event('disableSolverChanged'));
-    }
-  }
-
-  initPyodide();
-
-  </script>
 </head>
 <body>
 
@@ -217,76 +179,25 @@
           <div class="project-top">
             <span class="proj-index">[3]</span>
             <div class="badge-row">
-              <span class="badge badge-research">Python</span>
-              <span class="badge badge-research">Pyodide</span>
-              <span class="badge badge-research">A* Search</span>
               <span class="badge badge-research">Javascript</span>
+              <span class="badge badge-research">Pyodide</span>
+              <span class="badge badge-research">Embedding</span>
             </div>
           </div>
 
-          <h2 class="project-name">15-Puzzle Solver</h2>
+          <h2 class="project-name">Demonstrations</h2>
 
 
           <p class="project-desc">
-            An A* search implementation with Manhattan distance heuristic that computes optimal move
-            sequences for any valid 15-puzzle state. Solvability is verified before any board is
-            presented. The Python backend is embeded onto the site using pyodide. The frontend animates the
-            solution move-by-move. Demonstrates exploration into informed search, priority queues,
-            and algorithm design fundamentals.
+            Projects built solely for the purpose of learning the fundamentals of certain technologies; these are embedded
+            into a separate page to showcase my ability to comprehend the groundworks of javascript and embedded tech as well.
           </p>
 
           <div class="project-foot" style="margin-bottom: 0;">
             <div class="proj-links">
               <!-- TODO: Replace '#' with your 15-puzzle GitHub repository URL -->
-              <a href="#" class="proj-link">GitHub →</a>
+              <a href="demos.html" class="proj-link">Demos →</a>
             </div>
-          </div>
-
-          <div class="demo-panel">
-            <div id="puzzle-board" role="grid" aria-label="15 puzzle board"></div>
-            <div class="demo-controls">
-              <button class="d-btn primary" onclick="requestSolve()">Solve</button>
-              <button class="d-btn"         onclick="requestShuffle()">Shuffle</button>
-            </div>
-            <div id="puzzle-status" class="d-status"> </div>
-          </div>
-        </article>
-
-        <!-- ── P.04 — Digit Recognizer ──────────────────────── -->
-        <article class="project-article" id="project-digit">
-          <div class="project-top">
-            <span class="proj-index">[4]</span>
-                        <div class="badge-row">
-              <span class="badge badge-research">Neural Networks</span>
-              <span class="badge badge-research">MNIST</span>
-              <span class="badge badge-research">NumPy</span>
-            </div>
-          </div>
-
-          <h2 class="project-name">Handwritten Digit Recognizer</h2>
-
-          <p class="project-desc">
-            Digit classification built from scratch; forward propagation and backpropagation
-            implemented without ML frameworks, trained on MNIST. Draw any digit on the canvas
-            and the model returns a prediction with a confidence score. Demonstrates concrete
-            understanding of the underlying mathematics of how neural networks actually function.
-          </p>
-
-          <div class="project-foot" style="margin-bottom: 0;">
-            <div class="proj-links">
-              <!-- TODO: Replace '#' with your digit recognizer GitHub repository URL -->
-              <a href="https://github.com/EcuspDazrt/Digit-Recognizer" class="proj-link">GitHub →</a>
-            </div>
-          </div>
-
-          <div class="demo-panel">
-            <canvas id="digit-canvas" width="28" height="28"
-              aria-label="Draw a digit here"></canvas>
-            <div class="demo-controls">
-              <button class="d-btn primary" onclick="predictDigit()">Predict</button>
-              <button class="d-btn"         onclick="clearDigit()">Clear</button>
-            </div>
-            <div id="digit-result" class="d-status">Draw a digit, then predict</div>
           </div>
         </article>
 
