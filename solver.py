@@ -222,3 +222,7 @@ def solve(payload: dict):
     gameboard.board = board_state
     moves = gameboard.solve()
     return moves
+
+def init_board():
+    board = GameBoard()
+    return board.board
